@@ -1,0 +1,20 @@
+{
+  "name": "ak5-agentic",
+  "owner": {
+    "name": "Alex Ververis",
+    "email": "alexander.ververis@gmail.com",
+    "url": "https://github.com/ak5"
+  },
+  "plugins": [
+    {
+      "name": "claude-code-undo-redo",
+      "source": "./plugins/claude-code-undo-redo",
+      "description": "Smart /undo and /redo for Claude Code, backed by jj's op log. Atomic per-turn rollback in one slash command.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Alex Ververis"
+      },
+      "keywords": ["undo", "redo", "jj", "jujutsu", "claude-code", "agentic-coding"]
+    }
+  ]
+}

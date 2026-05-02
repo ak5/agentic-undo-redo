@@ -1,0 +1,25 @@
+{
+  "name": "claude-code-undo-redo",
+  "version": "0.1.0",
+  "description": "Smart /undo and /redo for Claude Code, backed by jj's op log. Atomic per-turn rollback in one slash command — A/B test states, save tokens, undo Claude's missteps.",
+  "author": {
+    "name": "Alex Ververis",
+    "email": "alexander.ververis@gmail.com",
+    "url": "https://github.com/ak5"
+  },
+  "homepage": "https://github.com/ak5/agentic-undo-redo",
+  "repository": "https://github.com/ak5/agentic-undo-redo",
+  "license": "MIT",
+  "keywords": [
+    "undo",
+    "redo",
+    "jj",
+    "jujutsu",
+    "claude-code",
+    "agentic-coding",
+    "token-optimization",
+    "version-control"
+  ],
+  "commands": ["./commands/"],
+  "hooks": "./hooks/hooks.json"
+}
