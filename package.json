@@ -1,7 +1,7 @@
 {
   "name": "agentic-undo-redo",
-  "version": "0.1.0",
-  "description": "Smart /undo and /redo for AI coding agents (Claude Code today, Cursor/Aider/OpenHands on the roadmap), backed by jj's op log.",
+  "version": "0.2.0-rc.1",
+  "description": "Smart undo and redo for AI coding agents (Claude Code and Codex CLI today; Cursor/Aider/OpenHands on the roadmap), backed by jj's op log.",
   "bin": {
     "agentic-undo-redo": "bin/cli.js"
   },
@@ -17,7 +17,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "bash -n install.sh && bash -n uninstall.sh && bash -n install.curl.sh && bash -n plugins/claude-code-undo-redo/hooks/jj-autosnapshot.sh && bash -n plugins/claude-code-undo-redo/hooks/jj-mark-turn.sh && jq -e . .claude-plugin/marketplace.json >/dev/null && jq -e . plugins/claude-code-undo-redo/.claude-plugin/plugin.json >/dev/null && jq -e . plugins/claude-code-undo-redo/hooks/hooks.json >/dev/null"
+    "test": "npm run test:static && npm run test:integration",
+    "test:static": "bash -n install.sh uninstall.sh install.curl.sh plugins/claude-code-undo-redo/hooks/jj-autosnapshot.sh plugins/claude-code-undo-redo/hooks/jj-mark-turn.sh plugins/claude-code-undo-redo/statusline.sh tests/integration.sh tests/testbed-smoke.sh && jq -e . .claude-plugin/marketplace.json >/dev/null && jq -e . plugins/claude-code-undo-redo/.claude-plugin/plugin.json >/dev/null && jq -e . plugins/claude-code-undo-redo/hooks/hooks.json >/dev/null",
+    "test:integration": "bash tests/integration.sh",
+    "pack:check": "npm pack --dry-run --cache /tmp/agentic-undo-redo-npm-cache"
   },
   "repository": {
     "type": "git",
@@ -30,6 +33,9 @@
   "keywords": [
     "claude-code",
     "claude",
+    "codex-cli",
+    "codex",
+    "openai",
     "cursor",
     "aider",
     "openhands",

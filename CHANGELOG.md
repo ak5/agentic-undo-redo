@@ -2,10 +2,12 @@
 
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.2.0-rc.1] — 2026-07-19
 
 ### Added
 - Codex CLI support: $undo $redo $undo-stack $undo-reset skills (plugins/codex-undo-redo), installed by install.sh --global when ~/.codex exists. Codex has no prompt-hook surface to mark turn boundaries, so $undo falls back to the previous op-log entry (one level) when the stack is empty.
+- GitHub Actions quality gates covering static validation, isolated installer behavior, real Claude/Codex undo-redo flows, and the sibling testbed bootstrap.
+- Canonical `dev → main` release flow, pull-request template, RC publishing guide, and main-branch protection.
 
 ### Changed
 - Undo/redo stack state moved from .claude/.jj-*-stack-* to .jj/{undo,redo}-stack-* — .jj/ is self-ignored by both git (via .jj/.gitignore) and jj, so repos no longer need per-repo gitignore entries, and jj no longer snapshots the stacks into the very op log they index.
@@ -13,6 +15,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ### Fixed
 - Stack state files were tracked by jj working-copy snapshots (recursive bookkeeping).
+- Stale documentation still referred to the old stack paths, retired init command, and Claude Code as the only shipped integration.
 
 
 ## [0.1.0] — 2026-05-03

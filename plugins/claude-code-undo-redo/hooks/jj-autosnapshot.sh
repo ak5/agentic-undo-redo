@@ -7,7 +7,7 @@
 #
 # Self-skips when not applicable. The check is simply: does .jj/ exist
 # in this dir? If yes, snapshot. If no, do nothing. To enable in a repo,
-# run `jj git init --colocate` once (or type /agentic-enable in CC).
+# run `jj git init --colocate` once (or type /agentic-undo-redo-init in CC).
 
 set -e
 

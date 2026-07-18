@@ -1,12 +1,12 @@
 # agentic-undo-redo
 
-[![status: experimental](https://img.shields.io/badge/status-experimental-orange)](#a-note-on-experimental-status) [![version](https://img.shields.io/badge/version-0.1.0--beta-yellow)](https://github.com/ak5/agentic-undo-redo/releases) [![license: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![test](https://github.com/ak5/agentic-undo-redo/actions/workflows/test.yml/badge.svg)](https://github.com/ak5/agentic-undo-redo/actions/workflows/test.yml) [![status: experimental](https://img.shields.io/badge/status-experimental-orange)](#a-note-on-experimental-status) [![version](https://img.shields.io/badge/version-0.2.0--rc.1-yellow)](https://github.com/ak5/agentic-undo-redo/releases) [![license: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-> `/undo` and `/redo` for AI coding agents. One slash command rolls back the agent's last turn — every tool call in it, atomically. Built on [jj](https://jj-vcs.dev)'s op log. Claude Code today; Cursor / Aider / OpenHands on the roadmap.
+> `/undo` and `/redo` for AI coding agents. One command rolls back the agent's last turn — every tool call in it, atomically. Built on [jj](https://jj-vcs.dev)'s op log. Claude Code and Codex CLI today; Cursor / Aider / OpenHands on the roadmap.
 
 ## Status — experimental
 
-The core works. `jj op restore` is stable; this just plumbs it into Claude Code's hook surface. The plumbing is what's in flux: hook contracts, plugin manifest fields, multi-repo semantics. Pin to an exact version if you depend on it. Breaking changes likely until v1.0.
+The core works. `jj op restore` is stable; this plumbs it into Claude Code's hook surface and Codex CLI skills. The integration plumbing is what's in flux: hook contracts, skill behavior, plugin manifest fields, multi-repo semantics. Pin to an exact version if you depend on it. Breaking changes likely until v1.0.
 
 ## Why
 
@@ -16,7 +16,9 @@ AI agents make multi-step edits that look fine one at a time and wrong together.
 
 `/redo` is the symmetric half — undo, run lint or tests, redo, run them again. A/B test two states with two keystrokes.
 
-## What you get (Claude Code today)
+## What you get
+
+For Claude Code:
 
 | Slash command | Effect |
 |---|---|
@@ -120,7 +122,13 @@ cd agentic-undo-redo && ./install.sh                          # global
 
 [`ak5/agentic-undo-redo-testbed`](https://github.com/ak5/agentic-undo-redo-testbed) is a tiny throwaway sandbox. Some text, a bootstrap script, instructions. Clone it, run `./bootstrap.sh`, open Claude Code in the bootstrapped dir, run `/agentic-undo-redo-init`, ask Claude to rewrite some prose, then `/undo`. ~2 minutes end-to-end. Verifies the full auto-`git init` + `jj colocate` path.
 
+## Testing
+
+`npm test` runs static checks plus isolated integration tests for global install/uninstall, Claude Code marked-turn undo/redo, and Codex fallback undo/redo. CI runs that suite on pushes and pull requests, then checks out the sibling testbed and verifies its bootstrap-to-fresh-directory and `git`/`jj` initialization path. The agent UI interaction remains a manual smoke test.
+
 ## Global vs project install
+
+These scopes apply to the Claude Code integration. Codex skills are installed globally into `~/.codex/skills` by a global install; project installs do not install them.
 
 | | Global | Project |
 |---|---|---|
@@ -156,25 +164,25 @@ This repo is the source. Read it. Install when you're satisfied.
 
 Claude Code's plugin marketplace path (option A) works under a different trust model: **you** explicitly opt into `ak5/agentic-undo-redo` as a marketplace. Each marketplace is one trust boundary, like a Homebrew tap.
 
-## Dependencies (all hard)
+## Dependencies
 
 | | Why |
 |---|---|
 | **[jj (jujutsu)](https://jj-vcs.dev)** | The whole thing is built on jj's op log. `brew install jj`. |
 | **git** | Required for `jj git init --colocate`. The init slash command auto-runs `git init` if your dir isn't yet a repo (with a sweep against nested git repos to prevent accidentally creating a wrapper). `brew install git`. |
-| **jq** | Used by the installer to safely merge JSON into your existing `~/.claude/settings.json` without destroying anything. `brew install jq`. |
-| **Claude Code** | With hook support (`UserPromptSubmit` + `PostToolUse` events). |
+| **jq** | Required by the installer to safely merge JSON into `~/.claude/settings.json`. `brew install jq`. |
+| **Claude Code or Codex CLI** | Choose the integration you use. Claude Code provides turn-boundary hooks; Codex uses skills with a one-op fallback when no marked turn exists. |
 
 I love that jj exists. It's one of those projects that questions a fundamental assumption (git's working tree / staging / commit model) and rebuilds from scratch with cleaner primitives. In the agentic era, when AI is reshaping how we write code, breaking the status quo and asking "wait, why do we do it this way?" is more necessary than ever. jj is exactly that for version control — go give them a star.
 
-## How it works
+## How the Claude Code integration works
 
 ```
 User submits prompt
   ↓
 UserPromptSubmit hook fires (jj-mark-turn.sh):
-  • appends current jj op id to .claude/.jj-undo-stack-<session-id>
-  • truncates .claude/.jj-redo-stack-<session-id>
+  • appends current jj op id to .jj/undo-stack-<session-id>
+  • truncates .jj/redo-stack-<session-id>
   ↓
 Agent runs N file-mutating tools (Edit/Write/MultiEdit/NotebookEdit/Bash)
   ↓
@@ -192,6 +200,7 @@ Agent finishes turn. Op log accumulated:
 | Agent | Status |
 |---|---|
 | Claude Code | ✅ shipped |
+| Codex CLI | ✅ shipped |
 | Cursor / Aider / OpenHands / Continue.dev | 🚧 contributions welcome |
 
 The undo/redo logic is agent-agnostic — it's just `jj op restore` against a marker file. What differs per agent is the hook equivalent (turn-boundary detection, tool-call detection) and the command-registration mechanism. Open an issue if you want to land an adapter for your favorite agent.
@@ -206,9 +215,9 @@ The undo/redo logic is agent-agnostic — it's just `jj op restore` against a ma
 
 ## Limitations
 
-- **External side effects aren't reverted.** `/undo` rolls back tracked file state and jj metadata. If the agent's turn ran a webhook, sent an email, deleted node_modules, pushed to origin — those external effects stay.
+- **External side effects aren't reverted.** `/undo` or `$undo` rolls back tracked file state and jj metadata. If the agent's turn ran a webhook, sent an email, deleted node_modules, pushed to origin — those external effects stay.
 - **Two concurrent Claude Code sessions on the same repo can interfere.** Each session has its own stack file, but `jj op restore` is global.
-- **Manual `jj op restore` makes stacks stale.** Run `/undo-reset` after manual time travel.
+- **Manual `jj op restore` makes stacks stale.** Run `/undo-reset` (Claude Code) or `$undo-reset` (Codex) after manual time travel.
 - **Gitignored files aren't restored** (e.g. `node_modules/`, `.env.local`).
 - **Pushed commits stay pushed.** `git push --force-with-lease` if you want to publish a rollback.
 

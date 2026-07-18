@@ -9,7 +9,7 @@ SID="${CLAUDE_SESSION_ID:-default}"
 UNDO=".jj/undo-stack-${SID}"
 REDO=".jj/redo-stack-${SID}"
 
-[[ -d .jj ]]    || { echo "no jj here — type /agentic-enable to set this repo up (one-time)"; exit 0; }
+[[ -d .jj ]]    || { echo "no jj here — type /agentic-undo-redo-init to set this repo up (one-time)"; exit 0; }
 [[ -s "$UNDO" ]] || { echo "nothing to undo"; exit 0; }
 
 current=$(jj op log --limit 1 --no-graph -T 'self.id().short()')
