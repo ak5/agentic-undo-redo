@@ -124,7 +124,7 @@ cd agentic-undo-redo && ./install.sh                          # global
 
 ## Testing
 
-`npm test` runs static checks plus isolated integration tests for global install/uninstall, Claude Code marked-turn undo/redo, and Codex fallback undo/redo. CI runs that suite on pushes and pull requests, then checks out the sibling testbed and verifies its bootstrap-to-fresh-directory and `git`/`jj` initialization path. The agent UI interaction remains a manual smoke test.
+`npm test` runs static checks plus isolated integration tests for global install/uninstall, Claude Code marked-turn undo/redo, and Codex fallback undo/redo. CI runs that suite on pushes and pull requests. The sibling testbed has its own workflow that verifies its bootstrap-to-fresh-directory and `git`/`jj` initialization path whenever the testbed changes. The agent UI interaction remains a manual smoke test.
 
 ## Global vs project install
 

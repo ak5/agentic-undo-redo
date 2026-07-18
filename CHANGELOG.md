@@ -6,7 +6,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ### Added
 - Codex CLI support: $undo $redo $undo-stack $undo-reset skills (plugins/codex-undo-redo), installed by install.sh --global when ~/.codex exists. Codex has no prompt-hook surface to mark turn boundaries, so $undo falls back to the previous op-log entry (one level) when the stack is empty.
-- GitHub Actions quality gates covering static validation, isolated installer behavior, real Claude/Codex undo-redo flows, and the sibling testbed bootstrap.
+- GitHub Actions quality gates covering static validation, isolated installer behavior, and real Claude/Codex undo-redo flows, plus standalone bootstrap CI in the sibling testbed.
 - Canonical `dev → main` release flow, pull-request template, RC publishing guide, and main-branch protection.
 
 ### Changed

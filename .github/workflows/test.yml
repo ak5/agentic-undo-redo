@@ -22,19 +22,6 @@ jobs:
         run: cargo install --locked --version 0.42.0 jj-cli
       - run: npm test
 
-  testbed-smoke:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          repository: ak5/agentic-undo-redo-testbed
-          path: .testbed
-      - name: Install jj
-        run: cargo install --locked --version 0.42.0 jj-cli
-      - run: bash tests/testbed-smoke.sh .testbed
-
   # Production changes only arrive through a dev → main release PR.
   main-from-dev:
     if: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref != 'dev' }}
