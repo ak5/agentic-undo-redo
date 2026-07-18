@@ -6,8 +6,8 @@ Run this bash command and report only its stdout output (no narration):
 
 ```bash
 SID="${CLAUDE_SESSION_ID:-default}"
-UNDO=".claude/.jj-undo-stack-${SID}"
-REDO=".claude/.jj-redo-stack-${SID}"
+UNDO=".jj/undo-stack-${SID}"
+REDO=".jj/redo-stack-${SID}"
 
 [[ -d .jj ]] || { echo "no jj here"; exit 0; }
 

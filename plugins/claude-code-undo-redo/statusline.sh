@@ -24,8 +24,8 @@ CWD="${CLAUDE_PROJECT_DIR:-$PWD}"
 [[ -d "$CWD/.jj" ]] || exit 0
 
 SID="${CLAUDE_SESSION_ID:-default}"
-UNDO="$CWD/.claude/.jj-undo-stack-${SID}"
-REDO="$CWD/.claude/.jj-redo-stack-${SID}"
+UNDO="$CWD/.jj/undo-stack-${SID}"
+REDO="$CWD/.jj/redo-stack-${SID}"
 
 und=0; red=0
 [[ -s "$UNDO" ]] && und=$(wc -l <"$UNDO" | tr -d ' ')
