@@ -13,11 +13,10 @@ command -v jj >/dev/null 2>&1 || exit 0
 [[ -d .jj ]] || exit 0
 
 SID="${CLAUDE_SESSION_ID:-default}"
-mkdir -p .claude
 
 # Push current op onto the undo stack (LIFO; tail of file = top of stack).
 jj op log --limit 1 --no-graph -T 'self.id().short()' 2>/dev/null \
-  >> ".claude/.jj-undo-stack-${SID}"
+  >> ".jj/undo-stack-${SID}"
 
 # Truncate the redo stack — new timeline starts here.
-: > ".claude/.jj-redo-stack-${SID}"
+: > ".jj/redo-stack-${SID}"

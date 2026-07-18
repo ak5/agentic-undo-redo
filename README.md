@@ -26,6 +26,8 @@ AI agents make multi-step edits that look fine one at a time and wrong together.
 | `/undo-stack` | Read-only view of both stacks for this session. |
 | `/undo-reset` | Clear stacks (use after manually running `jj op restore`). |
 
+Plus Codex CLI twins — `$undo` `$redo` `$undo-stack` `$undo-reset` skills, installed into `~/.codex/skills` by `./install.sh --global` when `~/.codex` exists. Codex has no prompt-hook surface to mark turn boundaries, so `$undo` falls back to the previous op-log entry (one level) when the stack is empty — stated in the skill itself.
+
 Plus a status-line badge: `✓ undo` when armed, `↩3 ↪1` when there's history. Opt-in (see below).
 
 ## The lint A/B trick

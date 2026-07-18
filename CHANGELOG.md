@@ -4,6 +4,17 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
+### Added
+- Codex CLI support: $undo $redo $undo-stack $undo-reset skills (plugins/codex-undo-redo), installed by install.sh --global when ~/.codex exists. Codex has no prompt-hook surface to mark turn boundaries, so $undo falls back to the previous op-log entry (one level) when the stack is empty.
+
+### Changed
+- Undo/redo stack state moved from .claude/.jj-*-stack-* to .jj/{undo,redo}-stack-* — .jj/ is self-ignored by both git (via .jj/.gitignore) and jj, so repos no longer need per-repo gitignore entries, and jj no longer snapshots the stacks into the very op log they index.
+- Read-only inspections (/undo-stack current op) use --ignore-working-copy: no repo lock, works under sandboxed / read-only execution.
+
+### Fixed
+- Stack state files were tracked by jj working-copy snapshots (recursive bookkeeping).
+
+
 ## [0.1.0] — 2026-05-03
 
 First release. Smart `/undo` and `/redo` for Claude Code, backed by [jj](https://jj-vcs.dev)'s op log. Cursor / Aider / OpenHands adapters on the roadmap.

@@ -33,6 +33,17 @@ echo "  scope  -- $SCOPE"
 echo "  target -- $CLAUDE_DIR"
 echo
 
+bold "Removing codex skills"
+CODEX_DIR="${CODEX_DIR:-$HOME/.codex}"
+if [[ "$SCOPE" == "global" ]]; then
+  for name in undo redo undo-stack undo-reset; do
+    if [[ -f "$CODEX_DIR/skills/$name/SKILL.md" ]]; then
+      rm -rf "$CODEX_DIR/skills/$name"; green "  ✓ removed $CODEX_DIR/skills/$name"
+    fi
+  done
+fi
+echo
+
 bold "Removing hook scripts"
 for f in "$CLAUDE_DIR/hooks/jj-autosnapshot.sh" "$CLAUDE_DIR/hooks/jj-mark-turn.sh"; do
   if [[ -f "$f" ]]; then rm "$f"; green "  ✓ removed $f"; fi

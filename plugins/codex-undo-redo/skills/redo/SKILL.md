@@ -1,21 +1,20 @@
 ---
-description: Redo a turn that was undone (only valid before submitting a new prompt)
+name: redo
+description: Redo changes undone by $undo (only valid before further edits).
 ---
 
 Run this bash command and report only its stdout output (no narration):
 
 ```bash
-SID="${CLAUDE_SESSION_ID:-default}"
-UNDO=".jj/undo-stack-${SID}"
-REDO=".jj/redo-stack-${SID}"
+UNDO=".jj/undo-stack-codex"
+REDO=".jj/redo-stack-codex"
 
-[[ -d .jj ]]    || { echo "no jj here — type /agentic-undo-redo-init to set this repo up"; exit 0; }
-[[ -s "$REDO" ]] || { echo "nothing to redo (a new prompt clears the redo stack)"; exit 0; }
+[[ -d .jj ]]    || { echo "no jj here — run: jj git init --colocate (one-time)"; exit 0; }
+[[ -s "$REDO" ]] || { echo "nothing to redo"; exit 0; }
 
 current=$(jj op log --limit 1 --no-graph -T 'self.id().short()')
 target=$(tail -1 "$REDO")
 
-# Pop redo, push undo
 sed -i '' '$d' "$REDO" 2>/dev/null || sed -i '$d' "$REDO"
 echo "$current" >> "$UNDO"
 
