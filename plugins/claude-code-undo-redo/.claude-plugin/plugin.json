@@ -1,6 +1,6 @@
 {
   "name": "claude-code-undo-redo",
-  "version": "0.1.0",
+  "version": "0.2.0-rc.1",
   "description": "Smart /undo and /redo for Claude Code, backed by jj's op log. Atomic per-turn rollback in one slash command — A/B test states, save tokens, undo Claude's missteps.",
   "author": {
     "name": "Alex Ververis",
