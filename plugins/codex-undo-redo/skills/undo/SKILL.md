@@ -3,17 +3,17 @@ name: undo
 description: >-
   Undo the agent's recent file changes via the jj op log. Pops a marked turn
   from the undo stack when one exists; otherwise falls back to the previous
-  op (one level — codex has no prompt hooks to mark turn boundaries).
+  op (one level — useful when the plugin hooks are not installed or trusted).
   Pair with $redo.
 ---
 
 Run this bash command and report only its stdout output (no narration):
 
 ```bash
-UNDO=".jj/undo-stack-codex"
-REDO=".jj/redo-stack-codex"
+ROOT="$(jj --ignore-working-copy root 2>/dev/null)" || { echo "no jj here — run: jj git init --colocate (one-time)"; exit 0; }
+UNDO="$ROOT/.jj/undo-stack-codex"
+REDO="$ROOT/.jj/redo-stack-codex"
 
-[[ -d .jj ]] || { echo "no jj here — run: jj git init --colocate (one-time)"; exit 0; }
 jj st >/dev/null 2>&1 || true
 
 current=$(jj op log --limit 1 --no-graph -T 'self.id().short()')

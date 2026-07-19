@@ -70,23 +70,39 @@ check git "brew install git"  || deps_ok=false
 $deps_ok || { red "Install missing dependencies and re-run."; exit 1; }
 echo
 
+# Refuse user-skill collisions before writing any installation files.
+CODEX_DIR="${CODEX_DIR:-$HOME/.codex}"
+if [[ "$SCOPE" == "global" && -d "$CODEX_DIR" ]]; then
+  for s in "$SCRIPT_DIR/plugins/codex-undo-redo/skills"/*/; do
+    name="$(basename "$s")"
+    dest="$CODEX_DIR/skills/$name"
+    if [[ -f "$dest/SKILL.md" && ! -f "$dest/.agentic-undo-redo" ]] && \
+       ! cmp -s "$s/SKILL.md" "$dest/SKILL.md"; then
+      red "  ✗ refusing to overwrite existing Codex skill: $dest"
+      red "    move or remove it, then re-run the installer."
+      exit 1
+    fi
+  done
+fi
+
 # ─── install files ──────────────────────────────────────────────────────────
 bold "Installing files"
 mkdir -p "$CLAUDE_DIR/hooks" "$CLAUDE_DIR/commands"
 
 cp "$PLUGIN_DIR/hooks/jj-autosnapshot.sh" "$CLAUDE_DIR/hooks/"
 cp "$PLUGIN_DIR/hooks/jj-mark-turn.sh"    "$CLAUDE_DIR/hooks/"
-chmod +x "$CLAUDE_DIR/hooks/jj-autosnapshot.sh" "$CLAUDE_DIR/hooks/jj-mark-turn.sh"
+cp "$PLUGIN_DIR/statusline.sh"            "$CLAUDE_DIR/hooks/"
+chmod +x "$CLAUDE_DIR/hooks/jj-autosnapshot.sh" "$CLAUDE_DIR/hooks/jj-mark-turn.sh" "$CLAUDE_DIR/hooks/statusline.sh"
 cp "$PLUGIN_DIR/commands/"*.md "$CLAUDE_DIR/commands/"
 green "  ✓ hooks + slash commands → $CLAUDE_DIR"
 
-# Codex twins ($undo $redo …): global scope only — codex has no per-project skills.
-CODEX_DIR="${CODEX_DIR:-$HOME/.codex}"
+# Codex fallback skills: global scope only. The native plugin is preferred.
 if [[ "$SCOPE" == "global" && -d "$CODEX_DIR" ]]; then
   for s in "$SCRIPT_DIR/plugins/codex-undo-redo/skills"/*/; do
     name="$(basename "$s")"
     mkdir -p "$CODEX_DIR/skills/$name"
     cp "$s/SKILL.md" "$CODEX_DIR/skills/$name/"
+    : > "$CODEX_DIR/skills/$name/.agentic-undo-redo"
   done
   green "  ✓ codex skills (\$undo \$redo \$undo-stack \$undo-reset) → $CODEX_DIR/skills"
 fi

@@ -6,10 +6,9 @@ description: Show the $undo/$redo stacks (read-only inspection).
 Run this bash command and report only its stdout output (no narration):
 
 ```bash
-UNDO=".jj/undo-stack-codex"
-REDO=".jj/redo-stack-codex"
-
-[[ -d .jj ]] || { echo "no jj here"; exit 0; }
+ROOT="$(jj --ignore-working-copy root 2>/dev/null)" || { echo "no jj here"; exit 0; }
+UNDO="$ROOT/.jj/undo-stack-codex"
+REDO="$ROOT/.jj/redo-stack-codex"
 
 echo "═══ \$undo/\$redo stacks ═══"
 echo ""

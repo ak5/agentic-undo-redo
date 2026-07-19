@@ -5,6 +5,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 SCOPE="global"
 TARGET_DIR=""
 while [[ $# -gt 0 ]]; do
@@ -37,15 +39,20 @@ bold "Removing codex skills"
 CODEX_DIR="${CODEX_DIR:-$HOME/.codex}"
 if [[ "$SCOPE" == "global" ]]; then
   for name in undo redo undo-stack undo-reset; do
-    if [[ -f "$CODEX_DIR/skills/$name/SKILL.md" ]]; then
-      rm -rf "$CODEX_DIR/skills/$name"; green "  ✓ removed $CODEX_DIR/skills/$name"
+    dest="$CODEX_DIR/skills/$name"
+    source_skill="$SCRIPT_DIR/plugins/codex-undo-redo/skills/$name/SKILL.md"
+    if [[ -f "$dest/.agentic-undo-redo" ]] || \
+       { [[ -f "$dest/SKILL.md" && -f "$source_skill" ]] && cmp -s "$source_skill" "$dest/SKILL.md"; }; then
+      rm -rf "$dest"; green "  ✓ removed $dest"
+    elif [[ -f "$dest/SKILL.md" ]]; then
+      echo "  - preserved unrelated Codex skill: $dest"
     fi
   done
 fi
 echo
 
 bold "Removing hook scripts"
-for f in "$CLAUDE_DIR/hooks/jj-autosnapshot.sh" "$CLAUDE_DIR/hooks/jj-mark-turn.sh"; do
+for f in "$CLAUDE_DIR/hooks/jj-autosnapshot.sh" "$CLAUDE_DIR/hooks/jj-mark-turn.sh" "$CLAUDE_DIR/hooks/statusline.sh"; do
   if [[ -f "$f" ]]; then rm "$f"; green "  ✓ removed $f"; fi
 done
 echo

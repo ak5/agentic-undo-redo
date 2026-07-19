@@ -5,7 +5,8 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 ## [0.2.0-rc.1] — 2026-07-19
 
 ### Added
-- Codex CLI support: $undo $redo $undo-stack $undo-reset skills (plugins/codex-undo-redo), installed by install.sh --global when ~/.codex exists. Codex has no prompt-hook surface to mark turn boundaries, so $undo falls back to the previous op-log entry (one level) when the stack is empty.
+- Codex CLI support: `$undo`, `$redo`, `$undo-stack`, and `$undo-reset` skills, with a one-op fallback when lifecycle hooks are unavailable.
+- Native Codex CLI plugin with trusted turn-boundary and post-tool snapshot hooks; the one-op fallback remains available when hooks are absent.
 - GitHub Actions quality gates covering static validation, isolated installer behavior, and real Claude/Codex undo-redo flows, plus standalone bootstrap CI in the sibling testbed.
 - Canonical `dev → main` release flow, pull-request template, RC publishing guide, and main-branch protection.
 
@@ -16,6 +17,12 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 ### Fixed
 - Stack state files were tracked by jj working-copy snapshots (recursive bookkeeping).
 - Stale documentation still referred to the old stack paths, retired init command, and Claude Code as the only shipped integration.
+- Claude marketplace validation failed because the `UserPromptSubmit` hook used the wrong nesting shape.
+- Claude plugin installation failed because its manifest redundantly registered the conventionally auto-loaded `hooks/hooks.json`.
+- The manual Codex installer could overwrite an unrelated skill with the same name, and uninstall could then delete it.
+- The manual installer documented a status-line helper path but did not install or uninstall that helper.
+- Hooks and commands silently disabled when the agent was launched from a repository subdirectory instead of its root.
+- Turn markers were appended without newline delimiters, corrupting the stack after more than one prompt.
 
 
 ## [0.1.0] — 2026-05-03

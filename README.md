@@ -28,7 +28,7 @@ For Claude Code:
 | `/undo-stack` | Read-only view of both stacks for this session. |
 | `/undo-reset` | Clear stacks (use after manually running `jj op restore`). |
 
-Plus Codex CLI twins — `$undo` `$redo` `$undo-stack` `$undo-reset` skills, installed into `~/.codex/skills` by `./install.sh --global` when `~/.codex` exists. Codex has no prompt-hook surface to mark turn boundaries, so `$undo` falls back to the previous op-log entry (one level) when the stack is empty — stated in the skill itself.
+For Codex CLI, the `codex-undo-redo` plugin provides `$undo`, `$redo`, `$undo-stack`, and `$undo-reset`. Its trusted lifecycle hooks mark prompt boundaries and snapshot tool changes, giving the same atomic turn-level behavior. `$undo` retains a one-op fallback when those hooks are not installed or trusted.
 
 Plus a status-line badge: `✓ undo` when armed, `↩3 ↪1` when there's history. Opt-in (see below).
 
@@ -59,7 +59,7 @@ Same trick for `pnpm test`, `pnpm typecheck`, perf benchmarks — anything you c
 
 ## Install
 
-Two paths. Pick whichever fits.
+Three paths. Pick whichever fits.
 
 ### A. Claude Code plugin (recommended — fully native, all in CC)
 
@@ -78,13 +78,25 @@ Then in any repo where you want it active:
 
 That's it. No terminal commands.
 
-### B. `npx` (everything else)
+### B. Codex CLI plugin (recommended for Codex)
+
+```sh
+codex plugin marketplace add ak5/agentic-undo-redo
+codex plugin add codex-undo-redo@ak5-agentic
+```
+
+Restart Codex, review and trust the plugin hooks with `/hooks`, then run `jj git init --colocate` once in each repository you want armed.
+
+### C. `npx` (manual installer)
 
 ```sh
 # install
 npx agentic-undo-redo
 
-# pin a version
+# install this release candidate after it is published
+npx agentic-undo-redo@0.2.0-rc.1
+
+# pin the previous stable release
 npx agentic-undo-redo@0.1.0
 npx github:ak5/agentic-undo-redo#v0.1.0
 
@@ -98,7 +110,7 @@ npx agentic-undo-redo uninstall
 <details>
 <summary>Power-user paths (curl|bash, git clone)</summary>
 
-Not the recommended happy path — use the Claude Code plugin or `npx`. These exist for users without Node and without the plugin system.
+Not the recommended happy path — use the Claude Code or Codex plugin. These paths exist for compatibility and for users without a plugin workflow.
 
 ```sh
 # curl | bash bootstrap
@@ -128,7 +140,7 @@ cd agentic-undo-redo && ./install.sh                          # global
 
 ## Global vs project install
 
-These scopes apply to the Claude Code integration. Codex skills are installed globally into `~/.codex/skills` by a global install; project installs do not install them.
+These scopes apply to the Claude Code integration. The manual global installer also copies the Codex fallback skills into `~/.codex/skills` when `~/.codex` exists; project installs do not install them. The recommended Codex plugin path is managed by Codex itself.
 
 | | Global | Project |
 |---|---|---|
@@ -139,7 +151,7 @@ These scopes apply to the Claude Code integration. Codex skills are installed gl
 
 ## Status line badge
 
-Opt-in. Add to `~/.claude/settings.json`:
+Opt-in. The `npx`/manual global installer places the helper at `~/.claude/hooks/statusline.sh`; add it to `~/.claude/settings.json`:
 
 ```json
 {
@@ -150,7 +162,7 @@ Opt-in. Add to `~/.claude/settings.json`:
 }
 ```
 
-(Or wherever `statusline.sh` lives after install.) When CC is in a jj-armed repo, the bottom of the screen shows `✓ undo` (no history) or `↩3` (3 undos available) or `↩3 ↪1` (also 1 redo available).
+Marketplace installs keep plugin files in Claude's plugin cache; point the command to that installed `statusline.sh` or copy it to a stable path first. When CC is in a jj-armed repo, the bottom of the screen shows `✓ undo` (no history) or `↩3` (3 undos available) or `↩3 ↪1` (also 1 redo available).
 
 If you already have a custom statusline script, append our line via shell composition rather than overwriting yours.
 
@@ -170,7 +182,7 @@ Claude Code's plugin marketplace path (option A) works under a different trust m
 |---|---|
 | **[jj (jujutsu)](https://jj-vcs.dev)** | The whole thing is built on jj's op log. `brew install jj`. |
 | **git** | Required for `jj git init --colocate`. The init slash command auto-runs `git init` if your dir isn't yet a repo (with a sweep against nested git repos to prevent accidentally creating a wrapper). `brew install git`. |
-| **jq** | Required by the installer to safely merge JSON into `~/.claude/settings.json`. `brew install jq`. |
+| **jq** | Required by the manual installer to safely merge JSON into `~/.claude/settings.json`. `brew install jq`. |
 | **Claude Code or Codex CLI** | Choose the integration you use. Claude Code provides turn-boundary hooks; Codex uses skills with a one-op fallback when no marked turn exists. |
 
 I love that jj exists. It's one of those projects that questions a fundamental assumption (git's working tree / staging / commit model) and rebuilds from scratch with cleaner primitives. In the agentic era, when AI is reshaping how we write code, breaking the status quo and asking "wait, why do we do it this way?" is more necessary than ever. jj is exactly that for version control — go give them a star.
@@ -187,13 +199,15 @@ UserPromptSubmit hook fires (jj-mark-turn.sh):
 Agent runs N file-mutating tools (Edit/Write/MultiEdit/NotebookEdit/Bash)
   ↓
 PostToolUse hook fires after each (jj-autosnapshot.sh):
-  • runs `jj st` (read-only on disk; auto-snapshots if anything changed)
+  • runs `jj st` (does not modify project files; snapshots if anything changed)
   ↓
 Agent finishes turn. Op log accumulated:
   [turn-start, snap1, snap2, …, snapN]
 ```
 
 `/undo` pops the top of the undo stack, captures the current op (pushes onto redo stack), and runs `jj op restore <target>`. `/redo` is the mirror image. A new prompt clears the redo stack — once you keep typing forward, undone turns are gone (textbook editor behavior).
+
+The Codex plugin uses the same boundary/snapshot model with Codex lifecycle hooks and `.jj/undo-stack-codex`; its `$undo` and `$redo` skills perform the restore operations.
 
 ## Multi-agent roadmap
 
@@ -207,8 +221,8 @@ The undo/redo logic is agent-agnostic — it's just `jj op restore` against a ma
 
 ## What it CAN'T break
 
-- Cannot modify any commit content (commits are content-addressed).
-- Cannot lose data — every op is preserved in jj's log indefinitely.
+- Does not rewrite existing commit objects (commits are content-addressed).
+- Does not delete operation history as part of undo/redo; recovery remains subject to jj's normal operation-log retention and garbage collection.
 - Cannot push anything to remotes.
 - Cannot affect teammates — `.jj/` and op log are local; auto-snapshot ops never reach origin.
 - Cannot accidentally wrap a parent dir of nested git repos with a fresh `git init` (the init sweeps for nested repos and refuses).
@@ -216,7 +230,7 @@ The undo/redo logic is agent-agnostic — it's just `jj op restore` against a ma
 ## Limitations
 
 - **External side effects aren't reverted.** `/undo` or `$undo` rolls back tracked file state and jj metadata. If the agent's turn ran a webhook, sent an email, deleted node_modules, pushed to origin — those external effects stay.
-- **Two concurrent Claude Code sessions on the same repo can interfere.** Each session has its own stack file, but `jj op restore` is global.
+- **Concurrent agent sessions on the same repo can interfere.** Claude sessions have separate stack files, while the Codex plugin currently shares one stack per repo; in both cases `jj op restore` changes the repository globally.
 - **Manual `jj op restore` makes stacks stale.** Run `/undo-reset` (Claude Code) or `$undo-reset` (Codex) after manual time travel.
 - **Gitignored files aren't restored** (e.g. `node_modules/`, `.env.local`).
 - **Pushed commits stay pushed.** `git push --force-with-lease` if you want to publish a rollback.
@@ -252,7 +266,7 @@ agentic-undo-redo/
 ├── .claude-plugin/
 │   └── marketplace.json                       # Claude Code marketplace manifest
 ├── plugins/
-│   └── claude-code-undo-redo/                 # the Claude Code plugin
+│   ├── claude-code-undo-redo/                 # the Claude Code plugin
 │       ├── .claude-plugin/plugin.json
 │       ├── hooks/
 │       │   ├── hooks.json
@@ -265,6 +279,13 @@ agentic-undo-redo/
 │       │   ├── undo-stack.md
 │       │   └── undo-reset.md
 │       └── statusline.sh
+│   └── codex-undo-redo/                       # the Codex CLI plugin
+│       ├── .codex-plugin/plugin.json
+│       ├── hooks/
+│       └── skills/
+├── .github/workflows/test.yml                 # hosted quality gate
+├── docs/publishing.md                         # RC release procedure
+├── tests/                                     # integration + testbed smoke tests
 ├── bin/cli.js                                  # npx entry — calls install.sh internally
 ├── install.sh                                  # internal — invoked by npx
 ├── uninstall.sh                                # internal — invoked by npx uninstall

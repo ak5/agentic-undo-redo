@@ -5,18 +5,18 @@
 # clears the redo stack (a new prompt forges a new timeline; previously
 # undone work cannot be re-redone).
 #
-# Self-skips if jj isn't installed or .jj/ doesn't exist in this dir.
+# Self-skips if jj isn't installed or the working directory isn't in a jj repo.
 
 set -e
 
 command -v jj >/dev/null 2>&1 || exit 0
-[[ -d .jj ]] || exit 0
+ROOT="$(jj --ignore-working-copy root 2>/dev/null)" || exit 0
 
 SID="${CLAUDE_SESSION_ID:-default}"
 
 # Push current op onto the undo stack (LIFO; tail of file = top of stack).
-jj op log --limit 1 --no-graph -T 'self.id().short()' 2>/dev/null \
-  >> ".jj/undo-stack-${SID}"
+jj op log --limit 1 --no-graph -T 'self.id().short() ++ "\n"' 2>/dev/null \
+  >> "$ROOT/.jj/undo-stack-${SID}"
 
 # Truncate the redo stack — new timeline starts here.
-: > ".jj/redo-stack-${SID}"
+: > "$ROOT/.jj/redo-stack-${SID}"

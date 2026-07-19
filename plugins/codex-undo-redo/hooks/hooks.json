@@ -1,0 +1,26 @@
+{
+  "description": "Mark Codex turn boundaries and snapshot file-changing tool calls for atomic undo.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${PLUGIN_ROOT}/hooks/jj-mark-turn.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${PLUGIN_ROOT}/hooks/jj-autosnapshot.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

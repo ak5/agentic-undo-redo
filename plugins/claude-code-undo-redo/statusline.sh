@@ -20,12 +20,12 @@ set -e
 # Resolve the working directory. CC may pass it via env; fall back to PWD.
 CWD="${CLAUDE_PROJECT_DIR:-$PWD}"
 
-# Silently skip if jj isn't here.
-[[ -d "$CWD/.jj" ]] || exit 0
+# Silently skip if this directory is not inside a jj workspace.
+ROOT="$(cd "$CWD" && jj --ignore-working-copy root 2>/dev/null)" || exit 0
 
 SID="${CLAUDE_SESSION_ID:-default}"
-UNDO="$CWD/.jj/undo-stack-${SID}"
-REDO="$CWD/.jj/redo-stack-${SID}"
+UNDO="$ROOT/.jj/undo-stack-${SID}"
+REDO="$ROOT/.jj/redo-stack-${SID}"
 
 und=0; red=0
 [[ -s "$UNDO" ]] && und=$(wc -l <"$UNDO" | tr -d ' ')

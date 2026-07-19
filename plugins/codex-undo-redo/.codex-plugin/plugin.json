@@ -1,0 +1,13 @@
+{
+  "name": "codex-undo-redo",
+  "version": "0.2.0-rc.1",
+  "description": "Atomic turn-level undo and redo for Codex CLI, backed by jj's op log.",
+  "author": {
+    "name": "Alex Ververis"
+  },
+  "repository": "https://github.com/ak5/agentic-undo-redo",
+  "license": "MIT",
+  "keywords": ["undo", "redo", "jj", "jujutsu", "codex", "agentic-coding"],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
+}

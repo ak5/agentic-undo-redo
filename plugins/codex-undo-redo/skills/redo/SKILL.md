@@ -6,10 +6,10 @@ description: Redo changes undone by $undo (only valid before further edits).
 Run this bash command and report only its stdout output (no narration):
 
 ```bash
-UNDO=".jj/undo-stack-codex"
-REDO=".jj/redo-stack-codex"
+ROOT="$(jj --ignore-working-copy root 2>/dev/null)" || { echo "no jj here — run: jj git init --colocate (one-time)"; exit 0; }
+UNDO="$ROOT/.jj/undo-stack-codex"
+REDO="$ROOT/.jj/redo-stack-codex"
 
-[[ -d .jj ]]    || { echo "no jj here — run: jj git init --colocate (one-time)"; exit 0; }
 [[ -s "$REDO" ]] || { echo "nothing to redo"; exit 0; }
 
 current=$(jj op log --limit 1 --no-graph -T 'self.id().short()')

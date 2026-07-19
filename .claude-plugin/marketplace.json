@@ -1,5 +1,6 @@
 {
   "name": "ak5-agentic",
+  "description": "Undo and redo plugins for Claude Code and Codex CLI, backed by jj's operation log.",
   "owner": {
     "name": "Alex Ververis",
     "email": "alexander.ververis@gmail.com",
@@ -15,6 +16,16 @@
         "name": "Alex Ververis"
       },
       "keywords": ["undo", "redo", "jj", "jujutsu", "claude-code", "agentic-coding"]
+    },
+    {
+      "name": "codex-undo-redo",
+      "source": "./plugins/codex-undo-redo",
+      "description": "Atomic turn-level $undo and $redo for Codex CLI, backed by jj's op log.",
+      "version": "0.2.0-rc.1",
+      "author": {
+        "name": "Alex Ververis"
+      },
+      "keywords": ["undo", "redo", "jj", "jujutsu", "codex", "agentic-coding"]
     }
   ]
 }

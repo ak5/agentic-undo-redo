@@ -17,9 +17,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "npm run test:static && npm run test:integration",
-    "test:static": "bash -n install.sh uninstall.sh install.curl.sh plugins/claude-code-undo-redo/hooks/jj-autosnapshot.sh plugins/claude-code-undo-redo/hooks/jj-mark-turn.sh plugins/claude-code-undo-redo/statusline.sh tests/integration.sh tests/testbed-smoke.sh && jq -e . .claude-plugin/marketplace.json >/dev/null && jq -e . plugins/claude-code-undo-redo/.claude-plugin/plugin.json >/dev/null && jq -e . plugins/claude-code-undo-redo/hooks/hooks.json >/dev/null",
+    "test": "npm run test:static && npm run test:integration && npm run test:artifact",
+    "test:static": "bash -n install.sh uninstall.sh install.curl.sh plugins/claude-code-undo-redo/hooks/jj-autosnapshot.sh plugins/claude-code-undo-redo/hooks/jj-mark-turn.sh plugins/claude-code-undo-redo/statusline.sh plugins/codex-undo-redo/hooks/jj-autosnapshot.sh plugins/codex-undo-redo/hooks/jj-mark-turn.sh tests/integration.sh tests/artifact-smoke.sh tests/testbed-smoke.sh && jq -e . .claude-plugin/marketplace.json >/dev/null && jq -e 'has(\"hooks\") | not' plugins/claude-code-undo-redo/.claude-plugin/plugin.json >/dev/null && jq -e . plugins/codex-undo-redo/.codex-plugin/plugin.json >/dev/null && jq -e '.hooks.UserPromptSubmit[] | .hooks | type == \"array\" and length > 0' plugins/claude-code-undo-redo/hooks/hooks.json >/dev/null && jq -e '.hooks.UserPromptSubmit[] | .hooks | type == \"array\" and length > 0' plugins/codex-undo-redo/hooks/hooks.json >/dev/null",
     "test:integration": "bash tests/integration.sh",
+    "test:artifact": "bash tests/artifact-smoke.sh",
     "pack:check": "npm pack --dry-run --cache /tmp/agentic-undo-redo-npm-cache"
   },
   "repository": {

@@ -6,10 +6,9 @@ Run this bash command and report only its stdout output (no narration):
 
 ```bash
 SID="${CLAUDE_SESSION_ID:-default}"
-UNDO=".jj/undo-stack-${SID}"
-REDO=".jj/redo-stack-${SID}"
-
-[[ -d .jj ]] || { echo "no jj here"; exit 0; }
+ROOT="$(jj --ignore-working-copy root 2>/dev/null)" || { echo "no jj here"; exit 0; }
+UNDO="$ROOT/.jj/undo-stack-${SID}"
+REDO="$ROOT/.jj/redo-stack-${SID}"
 
 und_count=0
 red_count=0

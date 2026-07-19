@@ -20,6 +20,5 @@
     "token-optimization",
     "version-control"
   ],
-  "commands": ["./commands/"],
-  "hooks": "./hooks/hooks.json"
+  "commands": ["./commands/"]
 }

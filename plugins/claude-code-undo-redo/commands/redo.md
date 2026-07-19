@@ -6,10 +6,10 @@ Run this bash command and report only its stdout output (no narration):
 
 ```bash
 SID="${CLAUDE_SESSION_ID:-default}"
-UNDO=".jj/undo-stack-${SID}"
-REDO=".jj/redo-stack-${SID}"
+ROOT="$(jj --ignore-working-copy root 2>/dev/null)" || { echo "no jj here — type /agentic-undo-redo-init to set this repo up"; exit 0; }
+UNDO="$ROOT/.jj/undo-stack-${SID}"
+REDO="$ROOT/.jj/redo-stack-${SID}"
 
-[[ -d .jj ]]    || { echo "no jj here — type /agentic-undo-redo-init to set this repo up"; exit 0; }
 [[ -s "$REDO" ]] || { echo "nothing to redo (a new prompt clears the redo stack)"; exit 0; }
 
 current=$(jj op log --limit 1 --no-graph -T 'self.id().short()')
